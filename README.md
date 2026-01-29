@@ -17,7 +17,7 @@ This project implements a Retrieval-Augmented Generation (RAG) chatbot designed 
 *   **Vector Store:** Chroma
 *   **Large Language Model (LLM):** Groq `llama-3.3-70b-versatile`
 *   **Environment Management:** Python virtual environment
-*   **Task Runner:** `just` (for simplified command execution)
+*   **Task Runner:** `just`/`make` (for simplified command execution)
 *   **Frontend:** HTML, CSS, JavaScript (single-page application)
 
 ## Architecture
@@ -36,7 +36,7 @@ The application is structured into the following main components:
     *   Initializes the RAG system by loading the HuggingFace embeddings, connecting to the Chroma vector store, and configuring the Groq LLM.
     *   Manages sensitive configurations and API keys by loading them from `config/.env`.
 
-3.  **CLI RAG Interface (`rag_app.py`):**
+3.  **CLI RAG Interface (`rag_app.py`):Y
     *   A standalone command-line script for direct interaction and testing of the RAG system. It provides an interactive prompt to submit queries and see immediate results from the RAG model.
 
 ## Getting Started
@@ -60,8 +60,14 @@ Before you begin, ensure you have the following installed:
 
 2.  **Create a virtual environment and install dependencies:**
 
-    It's highly recommended to use a Python virtual environment to manage dependencies. While a `requirements.txt` is not explicitly provided, the core dependencies are: `Flask`, `langchain-huggingface`, `langchain-chroma`, `langchain-groq`, and `python-dotenv`.
+    It's highly recommended to use a Python virtual environment to manage dependencies. You can either use the `make install` command or do it manually:
 
+    Using Make:
+    ```bash
+    make install
+    ```
+
+    Manually:
     ```bash
     python -m venv .venv
     source .venv/bin/activate
@@ -82,6 +88,12 @@ Before you begin, ensure you have the following installed:
 
     Before running the application, you need to populate the vector database with your knowledge base documents. This step processes the JSON files in the `dataset/` directory.
 
+    Using Make:
+    ```bash
+    make ingest
+    ```
+
+    Manually:
     ```bash
     python ingest.py
     ```
@@ -91,10 +103,16 @@ Before you begin, ensure you have the following installed:
 
 Once the setup is complete and data has been ingested, you can start the Flask web application:
 
+Using Make:
+```bash
+make run
+```
+
+Using just:
 ```bash
 just run
 ```
-The application will typically be accessible in your web browser at `http://127.0.0.1:5000`.
+The application will typically be accessible in your web browser at `http://172.17.0.1:5000`.
 
 ### Running the CLI RAG Interface (for testing and quick interaction)
 
@@ -111,7 +129,8 @@ You can then type your queries directly into the terminal. Type `exit`, `quit`, 
 *   **Virtual Environments:** Always work within the `.venv` to maintain clean dependency management.
 *   **Configuration Management:** Use `config/.env` for all sensitive credentials and environment-specific settings.
 *   **Data Structure:** Ensure knowledge base documents are provided as JSON files in the `dataset/` directory, following a consistent structure (e.g., each object having `title` and `content` fields).
-*   **Task Automation:** Utilize the `justfile` for running predefined tasks such as starting the application.
+*   **Task Automation:** Utilize the `justfile` or `Makefile` for running predefined tasks such as starting the application.
+*   **Logging:** Structured and colored logging is implemented using `src/logger.py`.
 
 ## Contribution
 
