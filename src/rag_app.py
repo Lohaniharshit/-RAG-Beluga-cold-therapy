@@ -7,8 +7,12 @@ from langchain.chains import RetrievalQA
 from langchain_core.prompts import PromptTemplate
 from dotenv import load_dotenv
 
+from src.logger import setup_logger
+
 # Load environment variables
 load_dotenv(dotenv_path="config/.env")
+
+logger = setup_logger(__name__)
 
 CHROMA_DB_DIR = "chroma_db"
 EMBEDDING_MODEL_NAME = "all-MiniLM-L6-v2"
@@ -16,18 +20,18 @@ GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 
 def main():
     if not GROQ_API_KEY or GROQ_API_KEY == "your_api_key_here":
-        print("Error: GROQ_API_KEY not found in config/.env")
-        print("Please add your key to config/.env")
+        logger.error("GROQ_API_KEY not found in config/.env")
+        logger.error("Please add your key to config/.env")
         return
 
-    print("Initializing components...")
+    logger.info("Initializing components...")
     
     # 1. Load Embeddings
     embeddings = HuggingFaceEmbeddings(model_name=EMBEDDING_MODEL_NAME)
     
     # 2. Load Vector Store
     if not os.path.exists(CHROMA_DB_DIR):
-         print(f"Error: {CHROMA_DB_DIR} not found. Run ingest.py first.")
+         logger.error(f"{CHROMA_DB_DIR} not found. Run ingest.py first.")
          return
 
     vectorstore = Chroma(
@@ -65,7 +69,7 @@ def main():
         chain_type_kwargs={"prompt": QA_CHAIN_PROMPT}
     )
     
-    print("\n--- Quick RAG Solution (Type 'exit' to quit) ---\n")
+    logger.info("\n--- Quick RAG Solution (Type 'exit' to quit) ---\n")
     
     while True:
         query = input("Query: ")
@@ -76,19 +80,19 @@ def main():
             continue
             
         try:
-            print("Thinking...")
+            logger.info("Thinking...")
             result = qa_chain.invoke({"query": query})
             answer = result["result"]
             sources = result["source_documents"]
             
-            print(f"\nAnswer: {answer}\n")
-            print("Sources:")
+            logger.info(f"\nAnswer: {answer}\n")
+            logger.info("Sources:")
             for i, doc in enumerate(sources, 1):
-                print(f"{i}. {doc.metadata.get('title', 'Unknown')} (Source: {os.path.basename(doc.metadata.get('source', ''))})")
-            print("-" * 50)
+                logger.info(f"{i}. {doc.metadata.get('title', 'Unknown')} (Source: {os.path.basename(doc.metadata.get('source', ''))})")
+            logger.info("-" * 50)
             
         except Exception as e:
-            print(f"Error: {e}")
+            logger.error(f"Error: {e}")
 
 if __name__ == "__main__":
     main()

@@ -3,4 +3,4 @@ python := ".venv/bin/python"
 
 
 run:
-    {{python}} -m app
+    {{python}} -m src.app

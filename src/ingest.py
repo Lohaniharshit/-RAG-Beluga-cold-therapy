@@ -7,8 +7,12 @@ from langchain_chroma import Chroma
 from langchain_core.documents import Document
 from dotenv import load_dotenv
 
+from src.logger import setup_logger
+
 # Load environment variables
 load_dotenv(dotenv_path="config/.env")
+
+logger = setup_logger(__name__)
 
 # Configuration
 DATASET_DIR = "dataset"
@@ -19,7 +23,7 @@ def load_documents_from_json(dataset_dir):
     documents = []
     json_files = glob.glob(os.path.join(dataset_dir, "*.json"))
     
-    print(f"Found {len(json_files)} JSON files in {dataset_dir}")
+    logger.info(f"Found {len(json_files)} JSON files in {dataset_dir}")
 
     for file_path in json_files:
         try:
@@ -33,7 +37,7 @@ def load_documents_from_json(dataset_dir):
                     # Try to find a list value, or treat strict dict as one item
                     items = [data]
                 else:
-                    print(f"Skipping {file_path}: Unknown format")
+                    logger.warning(f"Skipping {file_path}: Unknown format")
                     continue
                 
                 for item in items:
@@ -57,23 +61,23 @@ def load_documents_from_json(dataset_dir):
                     documents.append(doc)
                     
         except Exception as e:
-            print(f"Error loading {file_path}: {e}")
+            logger.error(f"Error loading {file_path}: {e}")
             
     return documents
 
 def main():
-    print("Loading documents...")
+    logger.info("Loading documents...")
     docs = load_documents_from_json(DATASET_DIR)
-    print(f"Loaded {len(docs)} documents.")
+    logger.info(f"Loaded {len(docs)} documents.")
 
     if not docs:
-        print("No documents found. Exiting.")
+        logger.warning("No documents found. Exiting.")
         return
 
-    print(f"Initializing HuggingFace Embeddings ({EMBEDDING_MODEL_NAME})...")
+    logger.info(f"Initializing HuggingFace Embeddings ({EMBEDDING_MODEL_NAME})...")
     embeddings = HuggingFaceEmbeddings(model_name=EMBEDDING_MODEL_NAME)
 
-    print(f"Creating Chroma vector store in {CHROMA_DB_DIR}...")
+    logger.info(f"Creating Chroma vector store in {CHROMA_DB_DIR}...")
     # This automatically persists to disk in newer langchain-chroma versions if directory is provided
     vectorstore = Chroma.from_documents(
         documents=docs,
@@ -81,7 +85,7 @@ def main():
         persist_directory=CHROMA_DB_DIR
     )
     
-    print("Ingestion complete. Vector store created.")
+    logger.info("Ingestion complete. Vector store created.")
 
 if __name__ == "__main__":
     main()

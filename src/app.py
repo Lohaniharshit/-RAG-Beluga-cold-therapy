@@ -7,10 +7,13 @@ from langchain.chains import RetrievalQA
 from langchain_core.prompts import PromptTemplate
 from dotenv import load_dotenv
 
+from src.logger import setup_logger
+
 # Load environment variables
 load_dotenv(dotenv_path="config/.env")
 
 app = Flask(__name__)
+logger = setup_logger(__name__)
 
 # Configuration
 CHROMA_DB_DIR = "chroma_db"
@@ -24,17 +27,17 @@ def initialize_rag():
     global qa_chain
     
     if not GROQ_API_KEY or GROQ_API_KEY == "your_api_key_here":
-        print("Error: GROQ_API_KEY not found in config/.env")
+        logger.error("GROQ_API_KEY not found in config/.env")
         return False
 
-    print("Initializing RAG components...")
+    logger.info("Initializing RAG components...")
     
     # 1. Load Embeddings
     embeddings = HuggingFaceEmbeddings(model_name=EMBEDDING_MODEL_NAME)
     
     # 2. Load Vector Store
     if not os.path.exists(CHROMA_DB_DIR):
-         print(f"Error: {CHROMA_DB_DIR} not found. Run ingest.py first.")
+         logger.error(f"{CHROMA_DB_DIR} not found. Run ingest.py first.")
          return False
 
     vectorstore = Chroma(
@@ -72,12 +75,12 @@ def initialize_rag():
         chain_type_kwargs={"prompt": QA_CHAIN_PROMPT}
     )
     
-    print("RAG initialized successfully.")
+    logger.info("RAG initialized successfully.")
     return True
 
 # Initialize on startup
 if not initialize_rag():
-    print("Failed to initialize RAG. App may not work correctly.")
+    logger.error("Failed to initialize RAG. App may not work correctly.")
 
 @app.route('/')
 def home():
@@ -113,7 +116,7 @@ def chat():
         })
         
     except Exception as e:
-        print(f"Error during query: {e}")
+        logger.error(f"Error during query: {e}")
         return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':
