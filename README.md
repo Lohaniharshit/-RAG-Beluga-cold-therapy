@@ -115,8 +115,13 @@ You can then type your queries directly into the terminal. Type `exit`, `quit`, 
 
 ## Contribution
 
-(Add guidelines for contributions if applicable)
+Contributions are welcome! If you'd like to contribute, please follow these steps:
+1.  Fork the repository.
+2.  Create a new branch for your feature or bug fix.
+3.  Make your changes and ensure they adhere to the Development Guidelines.
+4.  Write appropriate tests for your changes.
+5.  Submit a pull request.
 
 ## License
 
-(Add license information)
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
